@@ -1,0 +1,22 @@
+{
+  "name": "@harper-lyre-wiki/api",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:init": "wrangler d1 execute harper-lyre-wiki --file=./src/db/schema.sql",
+    "db:init:remote": "wrangler d1 execute harper-lyre-wiki --remote --file=./src/db/schema.sql",
+    "db:migrate": "wrangler d1 execute harper-lyre-wiki --file=./src/db/migrations/0002_wiki_features.sql",
+    "db:migrate:remote": "wrangler d1 execute harper-lyre-wiki --remote --file=./src/db/migrations/0002_wiki_features.sql",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241224.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.99.0"
+  }
+}

@@ -1,0 +1,19 @@
+name = "harper-lyre-wiki-api"
+main = "src/index.ts"
+compatibility_date = "2025-07-18"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "harper-lyre-wiki"
+database_id = "32e4c373-719b-42c2-be0f-7338f16e31c2"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "harper-lyre-wiki-images"
+
+[vars]
+FRONTEND_URL = "http://localhost:5173"
+
+# Secrets (not set here): EDIT_PASSWORD, SESSION_SECRET, DISCORD_WEBHOOK_URL
+# Local dev: put them in apps/api/.dev.vars (gitignored)
+# Production: `wrangler secret put <NAME>`
