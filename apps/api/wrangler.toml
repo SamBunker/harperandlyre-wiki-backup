@@ -12,7 +12,7 @@ binding = "IMAGES"
 bucket_name = "harper-lyre-wiki-images"
 
 [vars]
-FRONTEND_URL = "http://localhost:5173"
+FRONTEND_URL = "https://harper-lyre-wiki.pages.dev"
 
 # Secrets (not set here): EDIT_PASSWORD, SESSION_SECRET, DISCORD_WEBHOOK_URL
 # Local dev: put them in apps/api/.dev.vars (gitignored)

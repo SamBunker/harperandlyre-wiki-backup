@@ -10,9 +10,12 @@ import search from "./routes/search";
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
+const DEV_ORIGIN = "http://localhost:5173";
+
 app.use("*", async (c, next) => {
+  const allowedOrigins = new Set([c.env.FRONTEND_URL, DEV_ORIGIN]);
   const middleware = cors({
-    origin: c.env.FRONTEND_URL,
+    origin: (origin) => (origin && allowedOrigins.has(origin) ? origin : undefined),
     credentials: true,
   });
   return middleware(c, next);

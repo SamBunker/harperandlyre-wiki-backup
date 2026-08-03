@@ -33,11 +33,11 @@ export async function createSessionCookie(editorName: string, secret: string) {
   const key = await hmacKey(secret);
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payloadB64));
   const value = `${payloadB64}.${toBase64Url(sig)}`;
-  return `${SESSION_COOKIE}=${value}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=${SESSION_TTL_SECONDS}`;
+  return `${SESSION_COOKIE}=${value}; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=${SESSION_TTL_SECONDS}`;
 }
 
 export function clearSessionCookie() {
-  return `${SESSION_COOKIE}=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`;
+  return `${SESSION_COOKIE}=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0`;
 }
 
 export async function verifySessionCookie(cookieHeader: string | null | undefined, secret: string): Promise<string | null> {
