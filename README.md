@@ -87,6 +87,12 @@ you create yourself — I never see the values:
 - `CLOUDFLARE_ACCOUNT_ID` — found on the right sidebar of your Cloudflare
   dashboard's Workers & Pages overview page
 
+Optionally add a third secret, `DISCORD_WEBHOOK_URL` (a channel Incoming
+Webhook, same kind as the Worker's page-edit notifications — can be the same
+URL or a different channel), and the workflow will post a ✅/⚠️ message to
+Discord after every backup run, success or failure. Without it, that step is
+skipped silently.
+
 **To restore** from a backup: `git checkout data-backups`, then
 `npx wrangler d1 execute harper-lyre-wiki --remote --file=backups/<date>.sql`
 from `apps/api` (against a fresh D1 database if the original was lost
@@ -95,3 +101,10 @@ images themselves aren't binary-backed-up by this workflow — only their keys
 are recorded — since R2 already replicates data at rest; if you also want a
 full binary copy of uploaded images, that'd need a separate `rclone`-based
 step using R2's S3-compatible API credentials.
+
+### 6. Dependency updates
+
+`.github/dependabot.yml` opens weekly PRs for npm dependency updates (root
+workspace, covering both `apps/api` and `apps/web`) and for GitHub Actions
+version bumps. No secrets or setup needed — GitHub runs this automatically
+once the config file is on the default branch.
