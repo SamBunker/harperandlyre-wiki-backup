@@ -361,11 +361,19 @@
 }
 
 .editor-content {
-  min-height: 300px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 1rem;
   background: var(--bg-panel);
+}
+
+.editor-content:focus-within {
+  border-color: var(--heading);
+}
+
+.editor-content .ProseMirror {
+  min-height: 300px;
+  padding: 1rem;
+  outline: none;
 }
 
 .editor-content img,
