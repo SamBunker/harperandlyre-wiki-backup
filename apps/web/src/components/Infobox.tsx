@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { api, type Infobox as InfoboxData } from "../lib/api";
 
 export function Infobox({ data }: { data: InfoboxData }) {
@@ -9,7 +10,7 @@ export function Infobox({ data }: { data: InfoboxData }) {
           {data.rows.map((row, i) => (
             <tr key={i}>
               <th>{row.label}</th>
-              <td>{row.value}</td>
+              <td>{row.link ? <Link to={`/wiki/${row.link}`}>{row.value}</Link> : row.value}</td>
             </tr>
           ))}
         </tbody>

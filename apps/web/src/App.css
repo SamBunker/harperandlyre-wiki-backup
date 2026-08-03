@@ -154,7 +154,6 @@
 .app-body {
   flex: 1;
   display: flex;
-  align-items: flex-start;
 }
 
 .sidebar {
@@ -163,7 +162,6 @@
   background: var(--bg-panel);
   border-right: 2px solid var(--border);
   padding: 1.25rem 1rem;
-  min-height: 100%;
 }
 
 .sidebar-section {
@@ -408,7 +406,14 @@
 }
 
 .infobox-editor h4 {
-  margin-top: 0;
+  margin: 0 0 0.6rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.95rem;
+}
+
+.infobox-editor h4:not(:first-child) {
+  margin-top: 1.25rem;
 }
 
 .infobox-editor-image {
@@ -423,19 +428,67 @@
   border-radius: 4px;
 }
 
-.infobox-editor-row {
+.infobox-editor-image-placeholder {
+  width: 100%;
+  height: 90px;
   display: flex;
-  gap: 0.4rem;
-  margin-bottom: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
-.infobox-editor-row input {
-  min-width: 0;
-  flex: 1;
+.infobox-editor-empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+
+.infobox-editor-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.6rem;
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-panel-raised);
+}
+
+.infobox-editor-row-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.infobox-editor-row-header button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.infobox-editor-row-header button:hover {
+  color: var(--error);
+}
+
+.infobox-editor-row input,
+.infobox-editor-row select {
+  width: 100%;
   padding: 0.3rem 0.5rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg);
+  color: var(--text);
 }
 
 .infobox-editor button {
@@ -446,13 +499,17 @@
   color: var(--text);
 }
 
+.infobox-editor-add {
+  width: 100%;
+  padding: 0.4rem;
+}
+
 .infobox-editor > input {
   width: 100%;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg);
-  margin-top: 0.5rem;
 }
 
 @media (max-width: 900px) {

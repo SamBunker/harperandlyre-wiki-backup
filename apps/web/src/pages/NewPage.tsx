@@ -1,12 +1,14 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import type { Editor as TiptapEditor } from "@tiptap/react";
 import { api, type Infobox } from "../lib/api";
 import { Editor } from "../components/Editor";
 import { InfoboxEditor } from "../components/InfoboxEditor";
+import { useAuth } from "../lib/auth-context";
 
 export function NewPage() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [title, setTitle] = useState("");
   const [infobox, setInfobox] = useState<Infobox | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
@@ -32,6 +34,8 @@ export function NewPage() {
       setSaving(false);
     }
   };
+
+  if (!authLoading && !user) return <Navigate to="/" replace />;
 
   return (
     <div className="edit-page">

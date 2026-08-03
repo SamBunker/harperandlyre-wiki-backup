@@ -12,7 +12,7 @@ export type PageSummary = {
   updated_by: string | null;
 };
 
-export type InfoboxRow = { label: string; value: string };
+export type InfoboxRow = { label: string; value: string; link?: string };
 export type Infobox = { image?: string; rows: InfoboxRow[] };
 export type PageCategory = { name: string; slug: string };
 

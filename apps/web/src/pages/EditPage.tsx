@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import type { Editor as TiptapEditor } from "@tiptap/react";
 import { api, type Page, type Infobox } from "../lib/api";
 import { Editor } from "../components/Editor";
 import { InfoboxEditor } from "../components/InfoboxEditor";
+import { useAuth } from "../lib/auth-context";
 
 export function EditPage() {
   const { slug = "" } = useParams();
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const [page, setPage] = useState<Page | null>(null);
   const [title, setTitle] = useState("");
   const [infobox, setInfobox] = useState<Infobox | null>(null);
@@ -43,6 +45,7 @@ export function EditPage() {
     }
   };
 
+  if (!authLoading && !user) return <Navigate to={`/wiki/${slug}`} replace />;
   if (error && !page) return <p className="error">{error}</p>;
   if (!page) return <p>Loading…</p>;
 

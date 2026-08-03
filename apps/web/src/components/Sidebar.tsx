@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api, type Category } from "../lib/api";
+import { useAuth } from "../lib/auth-context";
 
 export function Sidebar() {
+  const { user } = useAuth();
   const [categories, setCategories] = useState<Category[] | null>(null);
 
   useEffect(() => {
@@ -17,9 +19,11 @@ export function Sidebar() {
           <li>
             <Link to="/">All Pages</Link>
           </li>
-          <li>
-            <Link to="/new">New Page</Link>
-          </li>
+          {user && (
+            <li>
+              <Link to="/new">New Page</Link>
+            </li>
+          )}
         </ul>
       </div>
       <div className="sidebar-section">
