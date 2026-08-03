@@ -5,6 +5,7 @@ export type Env = {
   SESSION_SECRET: string;
   DISCORD_WEBHOOK_URL?: string;
   FRONTEND_URL: string;
+  ADDITIONAL_ORIGINS?: string;
 };
 
 export type Page = {

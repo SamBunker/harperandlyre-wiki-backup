@@ -12,7 +12,7 @@ export type PageSummary = {
   updated_by: string | null;
 };
 
-export type InfoboxRow = { label: string; value: string; link?: string };
+export type InfoboxRow = { label: string; value: string; links?: (string | null)[] };
 export type Infobox = { image?: string; rows: InfoboxRow[] };
 export type PageCategory = { name: string; slug: string };
 
@@ -102,6 +102,13 @@ export const api = {
   logout: () => request<{ ok: true }>("/api/auth/logout", { method: "POST" }),
   listCategories: () => request<Category[]>("/api/categories"),
   getCategory: (slug: string) => request<CategoryDetail>(`/api/categories/${encodeURIComponent(slug)}`),
+  renameCategory: (slug: string, name: string) =>
+    request<{ name: string; slug: string }>(`/api/categories/${encodeURIComponent(slug)}`, {
+      method: "PATCH",
+      body: JSON.stringify({ name }),
+    }),
+  deleteCategory: (slug: string) =>
+    request<{ ok: true }>(`/api/categories/${encodeURIComponent(slug)}`, { method: "DELETE" }),
   search: (q: string) => request<SearchResult[]>(`/api/search?q=${encodeURIComponent(q)}`),
 };
 

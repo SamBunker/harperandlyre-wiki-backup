@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import type { Env, Variables } from "../types";
+import { requireEditor } from "../lib/middleware";
+import { slugify } from "../lib/slugify";
 
 const categories = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -32,6 +34,45 @@ categories.get("/:slug", async (c) => {
     .all();
 
   return c.json({ name: category.name, slug: category.slug, pages: results });
+});
+
+categories.patch("/:slug", requireEditor, async (c) => {
+  const slug = c.req.param("slug")!;
+  const body = await c.req.json<{ name?: string }>();
+  const name = body.name?.trim();
+  if (!name) return c.json({ error: "name is required" }, 400);
+
+  const category = await c.env.DB.prepare("SELECT id FROM categories WHERE slug = ?")
+    .bind(slug)
+    .first<{ id: number }>();
+  if (!category) return c.json({ error: "Not found" }, 404);
+
+  const newSlug = slugify(name);
+  const conflict = await c.env.DB.prepare("SELECT id FROM categories WHERE (name = ? OR slug = ?) AND id != ?")
+    .bind(name, newSlug, category.id)
+    .first();
+  if (conflict) return c.json({ error: "A category with this name already exists" }, 409);
+
+  await c.env.DB.prepare("UPDATE categories SET name = ?, slug = ? WHERE id = ?")
+    .bind(name, newSlug, category.id)
+    .run();
+
+  return c.json({ name, slug: newSlug });
+});
+
+categories.delete("/:slug", requireEditor, async (c) => {
+  const slug = c.req.param("slug")!;
+  const category = await c.env.DB.prepare("SELECT id FROM categories WHERE slug = ?")
+    .bind(slug)
+    .first<{ id: number }>();
+  if (!category) return c.json({ error: "Not found" }, 404);
+
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM page_categories WHERE category_id = ?").bind(category.id),
+    c.env.DB.prepare("DELETE FROM categories WHERE id = ?").bind(category.id),
+  ]);
+
+  return c.json({ ok: true });
 });
 
 export default categories;

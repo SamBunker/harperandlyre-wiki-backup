@@ -178,6 +178,27 @@
   margin: 0 0 0.5rem;
 }
 
+.sidebar-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sidebar-section-header h3 {
+  flex: 1;
+}
+
+.sidebar-sort {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-panel-raised);
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
 .sidebar-section ul {
   list-style: none;
   margin: 0;
@@ -233,6 +254,56 @@
   font-size: 0.85rem;
 }
 
+/* ---- Category page ---- */
+
+.category-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.category-page-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.category-page-actions button,
+.category-page-edit button {
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.category-page-actions button:hover,
+.category-page-edit button:hover {
+  border-color: var(--heading);
+  color: var(--heading);
+}
+
+.category-page-edit {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+}
+
+.category-page-edit input {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-panel-raised);
+  color: var(--heading);
+}
+
 /* ---- Article ---- */
 
 .wiki-page header {
@@ -271,7 +342,7 @@
 
 .infobox {
   float: right;
-  width: 280px;
+  width: 340px;
   margin: 0 0 1rem 1.5rem;
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -281,6 +352,8 @@
 
 .infobox-image {
   width: 100%;
+  max-height: 420px;
+  object-fit: cover;
   display: block;
 }
 
@@ -345,7 +418,9 @@
 
 .editor-toolbar {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
   margin-bottom: 0.75rem;
 }
 
@@ -356,6 +431,29 @@
   padding: 0.3rem 0.6rem;
   cursor: pointer;
   color: var(--text);
+}
+
+.editor-toolbar button:hover:not(:disabled) {
+  border-color: var(--heading);
+  color: var(--heading);
+}
+
+.editor-toolbar button.is-active {
+  background: var(--heading);
+  border-color: var(--heading);
+  color: #1a1509;
+}
+
+.editor-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.editor-toolbar-divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 0 0.15rem;
 }
 
 .editor-content {
@@ -379,6 +477,11 @@
   max-width: 100%;
 }
 
+.editor-content .ProseMirror a {
+  color: var(--heading);
+  text-decoration: underline;
+}
+
 .edit-page button[disabled] {
   opacity: 0.6;
 }
@@ -397,7 +500,7 @@
 /* ---- Infobox editor ---- */
 
 .infobox-editor {
-  width: 280px;
+  width: 340px;
   flex-shrink: 0;
   background: var(--bg-panel);
   border: 1px solid var(--border);
@@ -510,6 +613,77 @@
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--bg);
+}
+
+.infobox-editor-link-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.infobox-editor-chip {
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+.infobox-editor-chip.linked {
+  border-color: var(--heading);
+  color: var(--heading);
+}
+
+.infobox-editor-search {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.infobox-editor-hint {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  margin: 0 0 0.5rem;
+}
+
+.infobox-editor-search input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.infobox-editor-search-results {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.infobox-editor-search-results li + li {
+  border-top: 1px solid var(--border);
+}
+
+.infobox-editor-search-results button {
+  width: 100%;
+  text-align: left;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg-panel-raised);
+  border: none;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.infobox-editor-search-results button:hover {
+  background: var(--bg);
+  color: var(--heading);
 }
 
 @media (max-width: 900px) {

@@ -13,7 +13,11 @@ const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 const DEV_ORIGIN = "http://localhost:5173";
 
 app.use("*", async (c, next) => {
-  const allowedOrigins = new Set([c.env.FRONTEND_URL, DEV_ORIGIN]);
+  const extraOrigins = (c.env.ADDITIONAL_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const allowedOrigins = new Set([c.env.FRONTEND_URL, DEV_ORIGIN, ...extraOrigins]);
   const middleware = cors({
     origin: (origin) => (origin && allowedOrigins.has(origin) ? origin : undefined),
     credentials: true,
