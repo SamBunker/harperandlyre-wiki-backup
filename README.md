@@ -74,20 +74,27 @@ deploying — it's used both for CORS and in the webhook notification links.
 ### 5. Backups
 
 `.github/workflows/backup.yml` runs daily (and on manual trigger via the
-Actions tab → "D1 Backup" → "Run workflow") and pushes a full SQL dump of the
-production D1 database, plus a list of current R2 image keys, to a
-`data-backups` branch (`backups/<date>.sql` / `backups/<date>-r2-keys.json`).
-The last 90 days are kept; older ones are pruned automatically.
+Actions tab → "D1 Backup" → "Run workflow") and pushes everything to a
+`data-backups` branch:
 
-It needs two repo secrets (Settings → Secrets and variables → Actions), which
-you create yourself — I never see the values:
+- `backups/<date>.sql` — a full SQL dump of the production D1 database
+  (pages, revisions, categories — dated, last 90 days kept)
+- `backups/images/` — a full mirror of every file in the R2 images bucket
+  (not dated — resynced in place each run, so the branch always holds one
+  current copy rather than growing forever)
 
-- `CLOUDFLARE_API_TOKEN` — a token with **D1: Edit** and **R2: Read** permissions,
-  created at https://dash.cloudflare.com/profile/api-tokens
+It needs four repo secrets (Settings → Secrets and variables → Actions),
+which you create yourself — I never see the values:
+
+- `CLOUDFLARE_API_TOKEN` — a token with **D1: Edit** permission, created at
+  https://dash.cloudflare.com/profile/api-tokens
 - `CLOUDFLARE_ACCOUNT_ID` — found on the right sidebar of your Cloudflare
   dashboard's Workers & Pages overview page
+- `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` — an R2 API token's S3-compatible
+  credentials, created at your R2 bucket's "Manage R2 API Tokens" page with
+  **Object Read** permission on `harper-lyre-wiki-images`
 
-Optionally add a third secret, `DISCORD_WEBHOOK_URL` (a channel Incoming
+Optionally add a fifth secret, `DISCORD_WEBHOOK_URL` (a channel Incoming
 Webhook, same kind as the Worker's page-edit notifications — can be the same
 URL or a different channel), and the workflow will post a ✅/⚠️ message to
 Discord after every backup run, success or failure. Without it, that step is
@@ -95,12 +102,10 @@ skipped silently.
 
 **To restore** from a backup: `git checkout data-backups`, then
 `npx wrangler d1 execute harper-lyre-wiki --remote --file=backups/<date>.sql`
-from `apps/api` (against a fresh D1 database if the original was lost
-entirely, or the existing one if you're rolling back specific data). R2
-images themselves aren't binary-backed-up by this workflow — only their keys
-are recorded — since R2 already replicates data at rest; if you also want a
-full binary copy of uploaded images, that'd need a separate `rclone`-based
-step using R2's S3-compatible API credentials.
+from `apps/api` for the database (against a fresh D1 database if the
+original was lost entirely, or the existing one if you're rolling back
+specific data), and `rclone copy backups/images r2:harper-lyre-wiki-images`
+(with the same R2 credentials configured as above) to restore images.
 
 ### 6. Dependency updates
 

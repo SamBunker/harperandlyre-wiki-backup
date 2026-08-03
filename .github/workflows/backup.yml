@@ -29,15 +29,20 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: npx wrangler d1 export harper-lyre-wiki --remote --output=backup.sql
 
-      - name: List R2 image keys
+      - name: Install rclone
+        run: sudo apt-get update -y && sudo apt-get install -y rclone
+
+      - name: Download R2 images
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          RCLONE_CONFIG_R2_TYPE: s3
+          RCLONE_CONFIG_R2_PROVIDER: Cloudflare
+          RCLONE_CONFIG_R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          RCLONE_CONFIG_R2_ENDPOINT: https://${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          RCLONE_CONFIG_R2_ACL: private
         run: |
-          curl -sf \
-            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/r2/buckets/harper-lyre-wiki-images/objects" \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            -o apps/api/r2-keys.json || echo '{"note":"R2 key listing failed or unsupported"}' > apps/api/r2-keys.json
+          mkdir -p /tmp/r2-images
+          rclone sync r2:harper-lyre-wiki-images /tmp/r2-images --fast-list
 
       - name: Commit backup to data-backups branch
         run: |
@@ -46,7 +51,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
           cp apps/api/backup.sql /tmp/backup.sql
-          cp apps/api/r2-keys.json /tmp/r2-keys.json
 
           git fetch origin data-backups || true
           if git show-ref --verify --quiet refs/remotes/origin/data-backups; then
@@ -58,13 +62,14 @@ jobs:
 
           mkdir -p backups
           cp /tmp/backup.sql "backups/${DATE}.sql"
-          cp /tmp/r2-keys.json "backups/${DATE}-r2-keys.json"
 
-          # Keep the most recent 90 days of backups
-          cd backups
-          ls -1 -- *.sql 2>/dev/null | sort | head -n -90 | xargs -r rm --
-          ls -1 -- *-r2-keys.json 2>/dev/null | sort | head -n -90 | xargs -r rm --
-          cd ..
+          # Keep the most recent 90 days of SQL dumps
+          find backups -maxdepth 1 -name '*.sql' | sort | head -n -90 | xargs -r rm --
+
+          # Images are mirrored (not dated) to avoid unbounded repo growth
+          rm -rf backups/images
+          mkdir -p backups/images
+          cp -r /tmp/r2-images/. backups/images/ 2>/dev/null || true
 
           git add backups
           if ! git diff --cached --quiet; then
