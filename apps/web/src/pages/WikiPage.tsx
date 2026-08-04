@@ -25,6 +25,7 @@ export function WikiPage() {
   return (
     <article className="wiki-page">
       {infobox && <Infobox data={infobox} />}
+      {!page.published && user && <p className="hidden-banner">This page is hidden from the public.</p>}
       <header>
         <h1>{page.title}</h1>
         <div className="wiki-page-actions">

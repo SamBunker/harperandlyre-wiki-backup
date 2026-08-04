@@ -18,7 +18,10 @@ export function PageList() {
     <ul className="page-list">
       {pages.map((p) => (
         <li key={p.id}>
-          <Link to={`/wiki/${p.slug}`}>{p.title}</Link>
+          <span>
+            <Link to={`/wiki/${p.slug}`}>{p.title}</Link>
+            {!p.published && <span className="hidden-badge">Hidden</span>}
+          </span>
           <span className="page-list-updated">{new Date(p.updated_at + "Z").toLocaleDateString()}</span>
         </li>
       ))}

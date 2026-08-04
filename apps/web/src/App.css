@@ -342,6 +342,8 @@
 
 .infobox {
   float: right;
+  position: relative;
+  z-index: 2;
   width: 340px;
   margin: 0 0 1rem 1.5rem;
   background: var(--bg-panel);
@@ -484,6 +486,43 @@
 
 .edit-page button[disabled] {
   opacity: 0.6;
+}
+
+.visibility-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: fit-content;
+}
+
+.visibility-toggle input {
+  cursor: pointer;
+}
+
+.hidden-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--error);
+  color: var(--error);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hidden-banner {
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--error);
+  color: var(--error);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .edit-page > button {
@@ -636,9 +675,9 @@
 }
 
 .infobox-editor-search {
-  margin-top: 1.25rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .infobox-editor-hint {

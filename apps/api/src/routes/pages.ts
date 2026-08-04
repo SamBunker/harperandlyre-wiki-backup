@@ -14,12 +14,15 @@ type PageBody = {
   content?: string;
   infobox?: { image?: string; rows: { label: string; value: string }[] } | null;
   categories?: string[];
+  published?: boolean;
 };
 
 pages.get("/", async (c) => {
-  const { results } = await c.env.DB.prepare(
-    "SELECT id, slug, title, updated_at, updated_by FROM pages ORDER BY updated_at DESC"
-  ).all();
+  const isEditor = Boolean(c.get("editorName"));
+  const query = isEditor
+    ? "SELECT id, slug, title, updated_at, updated_by, published FROM pages ORDER BY updated_at DESC"
+    : "SELECT id, slug, title, updated_at, updated_by, published FROM pages WHERE published = 1 ORDER BY updated_at DESC";
+  const { results } = await c.env.DB.prepare(query).all();
   return c.json(results);
 });
 
@@ -27,6 +30,7 @@ pages.get("/:slug", async (c) => {
   const slug = c.req.param("slug")!;
   const page = await c.env.DB.prepare("SELECT * FROM pages WHERE slug = ?").bind(slug).first<Page>();
   if (!page) return c.json({ error: "Not found" }, 404);
+  if (!page.published && !c.get("editorName")) return c.json({ error: "Not found" }, 404);
   const categories = await getPageCategories(c.env.DB, page.id);
   return c.json({ ...page, categories });
 });
@@ -50,19 +54,20 @@ pages.post("/", requireEditor, async (c) => {
   }
   const title = body.title;
   const content = body.content;
-  const contentText = extractPlainText(JSON.parse(content));
+  const contentText = extractPlainText(content);
   const infobox = body.infobox ? JSON.stringify(body.infobox) : null;
   const slug = body.slug ? slugify(body.slug) : slugify(title);
+  const published = body.published === false ? 0 : 1;
   const editor = c.get("editorName")!;
 
   const existing = await c.env.DB.prepare("SELECT id FROM pages WHERE slug = ?").bind(slug).first();
   if (existing) return c.json({ error: "A page with this slug already exists" }, 409);
 
   const result = await c.env.DB.prepare(
-    `INSERT INTO pages (slug, title, content, content_text, infobox, created_by, updated_by)
-     VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING *`
+    `INSERT INTO pages (slug, title, content, content_text, infobox, published, created_by, updated_by)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING *`
   )
-    .bind(slug, title, content, contentText, infobox, editor, editor)
+    .bind(slug, title, content, contentText, infobox, published, editor, editor)
     .first<Page>();
 
   let categories: { name: string; slug: string }[] = [];
@@ -84,12 +89,13 @@ pages.put("/:slug", requireEditor, async (c) => {
   }
   const title = body.title;
   const content = body.content;
-  const contentText = extractPlainText(JSON.parse(content));
+  const contentText = extractPlainText(content);
   const infobox = body.infobox ? JSON.stringify(body.infobox) : null;
   const editor = c.get("editorName")!;
 
   const page = await c.env.DB.prepare("SELECT * FROM pages WHERE slug = ?").bind(slug).first<Page>();
   if (!page) return c.json({ error: "Not found" }, 404);
+  const published = body.published === undefined ? page.published : body.published ? 1 : 0;
 
   await c.env.DB.batch([
     c.env.DB.prepare("INSERT INTO revisions (page_id, content, edited_by) VALUES (?, ?, ?)").bind(
@@ -98,9 +104,9 @@ pages.put("/:slug", requireEditor, async (c) => {
       page.updated_by
     ),
     c.env.DB.prepare(
-      `UPDATE pages SET title = ?, content = ?, content_text = ?, infobox = ?, updated_by = ?,
+      `UPDATE pages SET title = ?, content = ?, content_text = ?, infobox = ?, published = ?, updated_by = ?,
        updated_at = datetime('now') WHERE id = ?`
-    ).bind(title, content, contentText, infobox, editor, page.id),
+    ).bind(title, content, contentText, infobox, published, editor, page.id),
   ]);
 
   if (body.categories) {

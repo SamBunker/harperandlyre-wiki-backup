@@ -14,6 +14,7 @@ bucket_name = "harper-lyre-wiki-images"
 [vars]
 FRONTEND_URL = "https://harper-lyre-wiki.pages.dev"
 ADDITIONAL_ORIGINS = "https://wiki.harperandlyre.com"
+PUBLIC_URL = "https://wiki.harperandlyre.com"
 
 # Secrets (not set here): EDIT_PASSWORD, SESSION_SECRET, DISCORD_WEBHOOK_URL
 # Local dev: put them in apps/api/.dev.vars (gitignored)

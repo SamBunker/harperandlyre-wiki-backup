@@ -10,9 +10,16 @@ export type PageSummary = {
   title: string;
   updated_at: string;
   updated_by: string | null;
+  published: number;
 };
 
-export type InfoboxRow = { label: string; value: string; links?: (string | null)[] };
+export type InfoboxRow = {
+  label: string;
+  value: string;
+  links?: (string | null)[];
+  /** @deprecated legacy single-link format from before auto-linking; still rendered for old pages */
+  link?: string;
+};
 export type Infobox = { image?: string; rows: InfoboxRow[] };
 export type PageCategory = { name: string; slug: string };
 
@@ -85,10 +92,11 @@ export const api = {
     content: string;
     infobox?: Infobox | null;
     categories?: string[];
+    published?: boolean;
   }) => request<Page>("/api/pages", { method: "POST", body: JSON.stringify(data) }),
   updatePage: (
     slug: string,
-    data: { title: string; content: string; infobox?: Infobox | null; categories?: string[] }
+    data: { title: string; content: string; infobox?: Infobox | null; categories?: string[]; published?: boolean }
   ) => request<Page>(`/api/pages/${encodeURIComponent(slug)}`, { method: "PUT", body: JSON.stringify(data) }),
   uploadImage: (file: File) => {
     const form = new FormData();

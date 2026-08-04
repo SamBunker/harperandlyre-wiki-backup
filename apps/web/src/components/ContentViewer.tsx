@@ -1,14 +1,7 @@
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
+import DOMPurify from "dompurify";
+import { toHtml } from "../lib/content-format";
 
 export function ContentViewer({ content }: { content: string }) {
-  const editor = useEditor({
-    extensions: [StarterKit, Image, Link],
-    content: JSON.parse(content),
-    editable: false,
-  });
-
-  return <EditorContent editor={editor} className="content-viewer" />;
+  const html = DOMPurify.sanitize(toHtml(content));
+  return <div className="content-viewer" dangerouslySetInnerHTML={{ __html: html }} />;
 }

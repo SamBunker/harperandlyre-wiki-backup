@@ -94,11 +94,13 @@ jobs:
           RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
           if [ "$STATUS" = "success" ]; then
-            CONTENT="✅ Wiki backup completed for **${DATE}** — ${RUN_URL}"
+            DESCRIPTION="✅ Wiki backup completed for **${DATE}** — [View Run](${RUN_URL})"
+            COLOR=3447003
           else
-            CONTENT="⚠️ Wiki backup **failed** for **${DATE}** — ${RUN_URL}"
+            DESCRIPTION="⚠️ Wiki backup **failed** for **${DATE}** — [View Run](${RUN_URL})"
+            COLOR=15548997
           fi
 
           curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
-            -d "{\"content\": \"${CONTENT}\"}"
+            -d "{\"embeds\": [{\"description\": \"${DESCRIPTION}\", \"color\": ${COLOR}}]}"

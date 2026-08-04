@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import type { Editor as TiptapEditor } from "@tiptap/react";
 import { api, type Infobox } from "../lib/api";
 import { Editor } from "../components/Editor";
 import { InfoboxEditor } from "../components/InfoboxEditor";
@@ -12,12 +11,13 @@ export function NewPage() {
   const [title, setTitle] = useState("");
   const [infobox, setInfobox] = useState<Infobox | null>(null);
   const [categories, setCategories] = useState<string[]>([]);
+  const [published, setPublished] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const editorRef = useRef<TiptapEditor | null>(null);
+  const getContentRef = useRef<(() => string) | null>(null);
 
   const save = async () => {
-    if (!editorRef.current) return;
+    if (!getContentRef.current) return;
     if (!title.trim()) {
       setError("Title is required");
       return;
@@ -25,8 +25,8 @@ export function NewPage() {
     setSaving(true);
     setError(null);
     try {
-      const content = JSON.stringify(editorRef.current.getJSON());
-      const page = await api.createPage({ title, content, infobox, categories });
+      const content = getContentRef.current();
+      const page = await api.createPage({ title, content, infobox, categories, published });
       navigate(`/wiki/${page.slug}`);
     } catch (e) {
       setError((e as Error).message);
@@ -46,7 +46,7 @@ export function NewPage() {
         onChange={(e) => setTitle(e.target.value)}
       />
       <div className="edit-page-layout">
-        <Editor content="" onReady={(e) => (editorRef.current = e)} />
+        <Editor content="" onReady={(get) => (getContentRef.current = get)} />
         <InfoboxEditor
           infobox={infobox}
           categories={categories}
@@ -54,6 +54,10 @@ export function NewPage() {
           onCategoriesChange={setCategories}
         />
       </div>
+      <label className="visibility-toggle">
+        <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
+        Visible to public
+      </label>
       {error && <p className="error">{error}</p>}
       <button onClick={save} disabled={saving}>
         {saving ? "Creating…" : "Create Page"}

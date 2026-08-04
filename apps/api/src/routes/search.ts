@@ -17,13 +17,18 @@ search.get("/", async (c) => {
   const q = c.req.query("q")?.trim();
   if (!q) return c.json([]);
 
+  const isEditor = Boolean(c.get("editorName"));
   const like = `%${q}%`;
-  const { results } = await c.env.DB.prepare(
-    `SELECT slug, title, content_text FROM pages
-     WHERE title LIKE ? OR content_text LIKE ?
-     ORDER BY updated_at DESC
-     LIMIT 20`
-  )
+  const query = isEditor
+    ? `SELECT slug, title, content_text FROM pages
+       WHERE title LIKE ? OR content_text LIKE ?
+       ORDER BY updated_at DESC
+       LIMIT 20`
+    : `SELECT slug, title, content_text FROM pages
+       WHERE (title LIKE ? OR content_text LIKE ?) AND published = 1
+       ORDER BY updated_at DESC
+       LIMIT 20`;
+  const { results } = await c.env.DB.prepare(query)
     .bind(like, like)
     .all<{ slug: string; title: string; content_text: string }>();
 

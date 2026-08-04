@@ -6,6 +6,7 @@ export type Env = {
   DISCORD_WEBHOOK_URL?: string;
   FRONTEND_URL: string;
   ADDITIONAL_ORIGINS?: string;
+  PUBLIC_URL?: string;
 };
 
 export type Page = {
@@ -15,6 +16,7 @@ export type Page = {
   content: string;
   content_text: string;
   infobox: string | null;
+  published: number;
   created_by: string | null;
   updated_by: string | null;
   created_at: string;

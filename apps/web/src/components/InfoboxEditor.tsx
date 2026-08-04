@@ -93,6 +93,30 @@ export function InfoboxEditor({ infobox, categories, onInfoboxChange, onCategori
         />
       </div>
 
+      <div className="infobox-editor-search">
+        <p className="infobox-editor-hint">
+          Values link automatically when they exactly match an existing page title. Search here
+          and click a result to insert it into the focused field below (comma-separate multiple
+          per field).
+        </p>
+        <input
+          placeholder="Search pages to link…"
+          value={pageSearch}
+          onChange={(e) => setPageSearch(e.target.value)}
+        />
+        {searchResults.length > 0 && (
+          <ul className="infobox-editor-search-results">
+            {searchResults.map((p) => (
+              <li key={p.slug}>
+                <button type="button" onClick={() => insertPageIntoRow(p.title)}>
+                  {p.title}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       {rows.length === 0 && <p className="infobox-editor-empty">No fields yet.</p>}
 
       {rows.map((row, i) => {
@@ -135,30 +159,6 @@ export function InfoboxEditor({ infobox, categories, onInfoboxChange, onCategori
       <button type="button" className="infobox-editor-add" onClick={addRow}>
         + Add row
       </button>
-
-      <div className="infobox-editor-search">
-        <p className="infobox-editor-hint">
-          Values are linked automatically when they exactly match an existing page title. Search
-          below to find the right title, then click a result to insert it into the focused field
-          (comma-separate multiple).
-        </p>
-        <input
-          placeholder="Search pages to link…"
-          value={pageSearch}
-          onChange={(e) => setPageSearch(e.target.value)}
-        />
-        {searchResults.length > 0 && (
-          <ul className="infobox-editor-search-results">
-            {searchResults.map((p) => (
-              <li key={p.slug}>
-                <button type="button" onClick={() => insertPageIntoRow(p.title)}>
-                  {p.title}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
 
       <h4>Categories</h4>
       <input

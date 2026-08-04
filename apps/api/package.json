@@ -9,6 +9,8 @@
     "db:init:remote": "wrangler d1 execute harper-lyre-wiki --remote --file=./src/db/schema.sql",
     "db:migrate": "wrangler d1 execute harper-lyre-wiki --file=./src/db/migrations/0002_wiki_features.sql",
     "db:migrate:remote": "wrangler d1 execute harper-lyre-wiki --remote --file=./src/db/migrations/0002_wiki_features.sql",
+    "db:migrate:0003": "wrangler d1 execute harper-lyre-wiki --file=./src/db/migrations/0003_page_visibility.sql",
+    "db:migrate:0003:remote": "wrangler d1 execute harper-lyre-wiki --remote --file=./src/db/migrations/0003_page_visibility.sql",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

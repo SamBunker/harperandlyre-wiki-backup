@@ -8,6 +8,18 @@ export function Infobox({ data }: { data: InfoboxData }) {
       <table>
         <tbody>
           {data.rows.map((row, i) => {
+            // Old infoboxes (before auto-linking) stored a single `link` for the
+            // whole value instead of a `links` array per comma-separated part.
+            if (!row.links && row.link) {
+              return (
+                <tr key={i}>
+                  <th>{row.label}</th>
+                  <td>
+                    <Link to={`/wiki/${row.link}`}>{row.value}</Link>
+                  </td>
+                </tr>
+              );
+            }
             const parts = row.value.split(",").map((p) => p.trim());
             return (
               <tr key={i}>

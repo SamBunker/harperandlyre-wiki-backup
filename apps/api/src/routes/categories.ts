@@ -2,36 +2,48 @@ import { Hono } from "hono";
 import type { Env, Variables } from "../types";
 import { requireEditor } from "../lib/middleware";
 import { slugify } from "../lib/slugify";
+import { notifyCategoryDeleted } from "../lib/discord-webhook";
 
 const categories = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 categories.get("/", async (c) => {
-  const { results } = await c.env.DB.prepare(
-    `SELECT c.name, c.slug, COUNT(pc.page_id) AS page_count
-     FROM categories c
-     LEFT JOIN page_categories pc ON pc.category_id = c.id
-     GROUP BY c.id
-     ORDER BY c.name`
-  ).all();
+  const isEditor = Boolean(c.get("editorName"));
+  const query = isEditor
+    ? `SELECT c.name, c.slug, COUNT(pc.page_id) AS page_count
+       FROM categories c
+       LEFT JOIN page_categories pc ON pc.category_id = c.id
+       GROUP BY c.id
+       ORDER BY c.name`
+    : `SELECT c.name, c.slug, COUNT(pc.page_id) AS page_count
+       FROM categories c
+       LEFT JOIN page_categories pc ON pc.category_id = c.id
+       LEFT JOIN pages p ON p.id = pc.page_id AND p.published = 1
+       GROUP BY c.id
+       ORDER BY c.name`;
+  const { results } = await c.env.DB.prepare(query).all();
   return c.json(results);
 });
 
 categories.get("/:slug", async (c) => {
   const slug = c.req.param("slug")!;
+  const isEditor = Boolean(c.get("editorName"));
   const category = await c.env.DB.prepare("SELECT id, name, slug FROM categories WHERE slug = ?")
     .bind(slug)
     .first<{ id: number; name: string; slug: string }>();
   if (!category) return c.json({ error: "Not found" }, 404);
 
-  const { results } = await c.env.DB.prepare(
-    `SELECT p.id, p.slug, p.title, p.updated_at
-     FROM pages p
-     JOIN page_categories pc ON pc.page_id = p.id
-     WHERE pc.category_id = ?
-     ORDER BY p.title`
-  )
-    .bind(category.id)
-    .all();
+  const query = isEditor
+    ? `SELECT p.id, p.slug, p.title, p.updated_at
+       FROM pages p
+       JOIN page_categories pc ON pc.page_id = p.id
+       WHERE pc.category_id = ?
+       ORDER BY p.title`
+    : `SELECT p.id, p.slug, p.title, p.updated_at
+       FROM pages p
+       JOIN page_categories pc ON pc.page_id = p.id
+       WHERE pc.category_id = ? AND p.published = 1
+       ORDER BY p.title`;
+  const { results } = await c.env.DB.prepare(query).bind(category.id).all();
 
   return c.json({ name: category.name, slug: category.slug, pages: results });
 });
@@ -62,15 +74,18 @@ categories.patch("/:slug", requireEditor, async (c) => {
 
 categories.delete("/:slug", requireEditor, async (c) => {
   const slug = c.req.param("slug")!;
-  const category = await c.env.DB.prepare("SELECT id FROM categories WHERE slug = ?")
+  const category = await c.env.DB.prepare("SELECT id, name FROM categories WHERE slug = ?")
     .bind(slug)
-    .first<{ id: number }>();
+    .first<{ id: number; name: string }>();
   if (!category) return c.json({ error: "Not found" }, 404);
 
   await c.env.DB.batch([
     c.env.DB.prepare("DELETE FROM page_categories WHERE category_id = ?").bind(category.id),
     c.env.DB.prepare("DELETE FROM categories WHERE id = ?").bind(category.id),
   ]);
+
+  const editor = c.get("editorName")!;
+  c.executionCtx.waitUntil(notifyCategoryDeleted(c.env, { name: category.name, editor }));
 
   return c.json({ ok: true });
 });
