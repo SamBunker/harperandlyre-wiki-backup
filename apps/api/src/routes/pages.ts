@@ -121,4 +121,23 @@ pages.put("/:slug", requireEditor, async (c) => {
   return c.json({ ...updated, categories });
 });
 
+pages.delete("/:slug", requireEditor, async (c) => {
+  const slug = c.req.param("slug")!;
+  const page = await c.env.DB.prepare("SELECT id, title FROM pages WHERE slug = ?")
+    .bind(slug)
+    .first<{ id: number; title: string }>();
+  if (!page) return c.json({ error: "Not found" }, 404);
+
+  await c.env.DB.batch([
+    c.env.DB.prepare("DELETE FROM revisions WHERE page_id = ?").bind(page.id),
+    c.env.DB.prepare("DELETE FROM page_categories WHERE page_id = ?").bind(page.id),
+    c.env.DB.prepare("DELETE FROM pages WHERE id = ?").bind(page.id),
+  ]);
+
+  const editor = c.get("editorName")!;
+  c.executionCtx.waitUntil(notifyPageChange(c.env, { type: "deleted", title: page.title, slug, editor }));
+
+  return c.json({ ok: true });
+});
+
 export default pages;

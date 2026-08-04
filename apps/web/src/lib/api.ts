@@ -98,6 +98,8 @@ export const api = {
     slug: string,
     data: { title: string; content: string; infobox?: Infobox | null; categories?: string[]; published?: boolean }
   ) => request<Page>(`/api/pages/${encodeURIComponent(slug)}`, { method: "PUT", body: JSON.stringify(data) }),
+  deletePage: (slug: string) =>
+    request<{ ok: true }>(`/api/pages/${encodeURIComponent(slug)}`, { method: "DELETE" }),
   uploadImage: (file: File) => {
     const form = new FormData();
     form.append("file", file);
