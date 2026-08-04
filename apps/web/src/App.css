@@ -254,6 +254,20 @@
   font-size: 0.85rem;
 }
 
+/* ---- Homepage setup ---- */
+
+.homepage-setup {
+  background: var(--bg-panel);
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.homepage-setup p {
+  margin: 0 0 0.75rem;
+}
+
 /* ---- Category page ---- */
 
 .category-page-header {

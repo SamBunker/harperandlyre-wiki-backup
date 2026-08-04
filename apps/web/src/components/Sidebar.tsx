@@ -31,7 +31,7 @@ export function Sidebar() {
         <h3>Navigation</h3>
         <ul>
           <li>
-            <Link to="/">All Pages</Link>
+            <Link to="/all-pages">All Pages</Link>
           </li>
           {user && (
             <li>

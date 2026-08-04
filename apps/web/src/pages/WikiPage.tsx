@@ -1,22 +1,39 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api, type Page, type Infobox as InfoboxData } from "../lib/api";
+import { api, ApiError, type Page, type Infobox as InfoboxData } from "../lib/api";
 import { useAuth } from "../lib/auth-context";
 import { ContentViewer } from "../components/ContentViewer";
 import { Infobox } from "../components/Infobox";
 
-export function WikiPage() {
-  const { slug = "" } = useParams();
+type WikiPageProps = {
+  /** Overrides the :slug route param — used to render a fixed page (e.g. the homepage) at another route. */
+  slugOverride?: string;
+  /** Rendered instead of the default "not found" message when the page doesn't exist. */
+  notFoundFallback?: ReactNode;
+};
+
+export function WikiPage({ slugOverride, notFoundFallback }: WikiPageProps = {}) {
+  const { slug: slugParam = "" } = useParams();
+  const slug = slugOverride ?? slugParam;
   const [page, setPage] = useState<Page | null>(null);
+  const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
     setPage(null);
     setError(null);
-    api.getPage(slug).then(setPage).catch((e) => setError(e.message));
+    setNotFound(false);
+    api.getPage(slug).then(setPage).catch((e) => {
+      if (e instanceof ApiError && e.status === 404) setNotFound(true);
+      else setError(e.message);
+    });
   }, [slug]);
 
+  if (notFound) {
+    if (notFoundFallback !== undefined) return <>{notFoundFallback}</>;
+    return <p>Page not found.</p>;
+  }
   if (error) return <p className="error">{error}</p>;
   if (!page) return <p>Loading…</p>;
 

@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { Nav } from "./components/Nav";
 import { Sidebar } from "./components/Sidebar";
+import { HomePage } from "./pages/HomePage";
 import { PageList } from "./pages/PageList";
 import { WikiPage } from "./pages/WikiPage";
 import { EditPage } from "./pages/EditPage";
@@ -18,7 +19,8 @@ function App() {
         <Sidebar />
         <main className="app-main">
           <Routes>
-            <Route path="/" element={<PageList />} />
+            <Route path="/" element={<HomePage />} />
+            <Route path="/all-pages" element={<PageList />} />
             <Route path="/new" element={<NewPage />} />
             <Route path="/wiki/:slug" element={<WikiPage />} />
             <Route path="/wiki/:slug/edit" element={<EditPage />} />
