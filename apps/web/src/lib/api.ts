@@ -44,10 +44,12 @@ export type Category = {
   page_count: number;
 };
 
+export type CategoryPageSummary = PageSummary & { image: string | null };
+
 export type CategoryDetail = {
   name: string;
   slug: string;
-  pages: PageSummary[];
+  pages: CategoryPageSummary[];
 };
 
 export type SearchResult = {

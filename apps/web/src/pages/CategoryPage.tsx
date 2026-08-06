@@ -95,10 +95,15 @@ export function CategoryPage() {
       {category.pages.length === 0 ? (
         <p>No pages in this category yet.</p>
       ) : (
-        <ul className="page-list">
+        <ul className="category-page-list">
           {category.pages.map((p) => (
             <li key={p.slug}>
               <Link to={`/wiki/${p.slug}`}>{p.title}</Link>
+              {p.image && (
+                <Link to={`/wiki/${p.slug}`} className="category-page-thumb-link">
+                  <img className="category-page-thumb" src={api.imageUrl(p.image)} alt="" />
+                </Link>
+              )}
             </li>
           ))}
         </ul>

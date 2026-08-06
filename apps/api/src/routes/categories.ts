@@ -33,19 +33,37 @@ categories.get("/:slug", async (c) => {
   if (!category) return c.json({ error: "Not found" }, 404);
 
   const query = isEditor
-    ? `SELECT p.id, p.slug, p.title, p.updated_at
+    ? `SELECT p.id, p.slug, p.title, p.updated_at, p.infobox
        FROM pages p
        JOIN page_categories pc ON pc.page_id = p.id
        WHERE pc.category_id = ?
        ORDER BY p.title`
-    : `SELECT p.id, p.slug, p.title, p.updated_at
+    : `SELECT p.id, p.slug, p.title, p.updated_at, p.infobox
        FROM pages p
        JOIN page_categories pc ON pc.page_id = p.id
        WHERE pc.category_id = ? AND p.published = 1
        ORDER BY p.title`;
-  const { results } = await c.env.DB.prepare(query).bind(category.id).all();
+  const { results } = await c.env.DB.prepare(query).bind(category.id).all<{
+    id: number;
+    slug: string;
+    title: string;
+    updated_at: string;
+    infobox: string | null;
+  }>();
 
-  return c.json({ name: category.name, slug: category.slug, pages: results });
+  const pages = results.map(({ infobox, ...page }) => {
+    let image: string | null = null;
+    if (infobox) {
+      try {
+        image = JSON.parse(infobox).image ?? null;
+      } catch {
+        image = null;
+      }
+    }
+    return { ...page, image };
+  });
+
+  return c.json({ name: category.name, slug: category.slug, pages });
 });
 
 categories.patch("/:slug", requireEditor, async (c) => {

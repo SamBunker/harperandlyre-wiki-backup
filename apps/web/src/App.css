@@ -318,6 +318,33 @@
   color: var(--heading);
 }
 
+.category-page-list {
+  list-style: none;
+  padding: 0;
+}
+
+.category-page-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.category-page-thumb-link {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.category-page-thumb {
+  height: 48px;
+  width: 48px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
 /* ---- Article ---- */
 
 .wiki-page header {
